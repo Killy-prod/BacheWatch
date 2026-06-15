@@ -47,14 +47,27 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ─── Colores de diseño ────────────────────────────────────────────────────────
+// ─── Paleta BacheWatch ────────────────────────────────────────────────────────
+private val BwMorado    = Color(0xFF520943)   // color1 — fondo oscuro / TopBar
+private val BwMagenta   = Color(0xFFAC0E4F)   // color2 — acento principal / FAB
+private val BwCyan      = Color(0xFF209CD8)   // color3 — acento secundario / links
+private val BwCyanClaro = Color(0xFF20DAD8)   // color4 — estados activos
+private val BwMenta     = Color(0xFFA1EBE9)   // color5 — chips / badges suaves
 
-private val ColorLeve     = Color(0xFF22C55E)   // verde
-private val ColorModerado = Color(0xFFF59E0B)   // ámbar
-private val ColorGrave    = Color(0xFFEF4444)   // rojo
-private val ColorPendiente   = Color(0xFF94A3B8)
-private val ColorEnRevision  = Color(0xFF3B82F6)
-private val ColorResuelto    = Color(0xFF22C55E)
+// Colores de gravedad adaptados a la paleta
+private val ColorLeve     = Color(0xFF20DAD8)   // cyan claro (leve = frío)
+private val ColorModerado = Color(0xFFAC0E4F)   // magenta (moderado = alerta)
+private val ColorGrave    = Color(0xFF520943)   // morado oscuro (grave = crítico)
+
+// Colores de status
+private val ColorPendiente   = Color(0xFF209CD8)   // cyan
+private val ColorEnRevision  = Color(0xFFAC0E4F)   // magenta
+private val ColorResuelto    = Color(0xFF20DAD8)   // cyan claro
+
+// Gradiente de header
+private val GradienteHeader = Brush.horizontalGradient(
+    listOf(Color(0xFF520943), Color(0xFF7A0A35))
+)
 
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 
@@ -75,35 +88,56 @@ fun HomeScreen(vm: HomeViewModel = viewModel()) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(BwMorado)
+                    .statusBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Ícono decorativo
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(
+                                color = BwMagenta.copy(alpha = 0.35f),
+                                shape = RoundedCornerShape(10.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Warning,
+                            contentDescription = null,
+                            tint = BwMenta,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
                             text = "BacheWatch",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            letterSpacing = (-0.5).sp
+                            letterSpacing = (-0.5).sp,
+                            color = Color.White
                         )
                         Text(
                             text = "Reportes ciudadanos",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 11.sp,
+                            color = BwMenta.copy(alpha = 0.8f),
                             letterSpacing = 0.5.sp
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                ),
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
+                }
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { vm.onReportarBacheClick() },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
+                containerColor = BwMagenta,
+                contentColor = Color.White,
+                shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 Row(
@@ -120,7 +154,7 @@ fun HomeScreen(vm: HomeViewModel = viewModel()) {
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color(0xFFF5F0F4)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -144,9 +178,9 @@ fun ReportesList(reportes: List<BacheReport>) {
     LazyColumn(
         contentPadding = PaddingValues(
             start = 16.dp, end = 16.dp,
-            top = 8.dp, bottom = 104.dp
+            top = 12.dp, bottom = 104.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item {
             Row(
@@ -158,20 +192,24 @@ fun ReportesList(reportes: List<BacheReport>) {
             ) {
                 Text(
                     text = "Mis reportes",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = BwMorado
                 )
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
+                // Badge contador con color de la paleta
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = BwMagenta,
+                            shape = CircleShape
+                        )
+                        .padding(horizontal = 10.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = "${reportes.size}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        fontSize = 11.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -185,8 +223,6 @@ fun ReportesList(reportes: List<BacheReport>) {
 // ─── Card de cada reporte ─────────────────────────────────────────────────────
 
 @Composable
-// Asegúrate de importar la función AsyncImage de Coil en la parte superior:
-// import io.coil-kt.compose.AsyncImage
 fun ReporteCard(reporte: BacheReport) {
     val dateFormat = remember { SimpleDateFormat("d MMM · yyyy", Locale("es", "MX")) }
 
@@ -198,27 +234,24 @@ fun ReporteCard(reporte: BacheReport) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-            // Barra lateral de color según gravedad
+            // Barra lateral con gradiente de la paleta
             Box(
                 modifier = Modifier
-                    .width(4.dp)
+                    .width(5.dp)
                     .fillMaxHeight()
                     .background(
                         brush = Brush.verticalGradient(
-                            listOf(accentColor, accentColor.copy(alpha = 0.4f))
+                            listOf(accentColor, accentColor.copy(alpha = 0.3f))
                         ),
-                        shape = RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp)
+                        shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)
                     )
             )
 
-            // Contenedor principal que divide el texto (izquierda) de la foto (derecha)
             Row(
                 modifier = Modifier
                     .padding(14.dp)
@@ -226,9 +259,7 @@ fun ReporteCard(reporte: BacheReport) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // COLUMNA IZQUIERDA: Textos y Datos
                 Column(modifier = Modifier.weight(1f)) {
-                    // Dirección + fecha
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -242,13 +273,14 @@ fun ReporteCard(reporte: BacheReport) {
                                 imageVector = Icons.Outlined.LocationOn,
                                 contentDescription = null,
                                 modifier = Modifier.size(13.dp),
-                                tint = accentColor
+                                tint = BwCyan
                             )
                             Spacer(Modifier.width(3.dp))
                             Text(
                                 text = reporte.direccion,
-                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                color = BwMorado,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 letterSpacing = (-0.2).sp
@@ -256,34 +288,30 @@ fun ReporteCard(reporte: BacheReport) {
                         }
                         Text(
                             text = dateFormat.format(reporte.fechaCreacion),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 8.dp),
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
+                            color = Color(0xFF9E9E9E),
+                            modifier = Modifier.padding(start = 8.dp)
                         )
                     }
 
                     Spacer(Modifier.height(5.dp))
 
-                    // Descripción
                     Text(
                         text = reporte.descripcion,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 12.sp,
+                        color = Color(0xFF6B6B6B),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        lineHeight = 17.sp,
-                        fontSize = 12.sp
+                        lineHeight = 17.sp
                     )
 
                     Spacer(Modifier.height(10.dp))
                     HorizontalDivider(
                         thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        color = Color(0xFFEEEEEE)
                     )
                     Spacer(Modifier.height(8.dp))
 
-                    // Chips
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -293,20 +321,16 @@ fun ReporteCard(reporte: BacheReport) {
                     }
                 }
 
-                // COLUMNA DERECHA: Evidencia Visual (Carga la foto simulada o real)
-                // Usamos ?.let para asegurar que si fotoUrl es nulo, este bloque simplemente se ignore
                 reporte.fotoUrl?.let { url ->
                     if (url.isNotBlank() && url != "sin_foto") {
                         Spacer(Modifier.width(12.dp))
-
-                        // Usamos la clase directa de Coil sin el prefijo "io.coil3" que causaba el conflicto
                         coil.compose.AsyncImage(
                             model = url,
                             contentDescription = "Evidencia del bache",
                             modifier = Modifier
                                 .size(76.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .background(Color(0xFFF0E8EF)),
                             contentScale = androidx.compose.ui.layout.ContentScale.Crop
                         )
                     }
@@ -315,6 +339,7 @@ fun ReporteCard(reporte: BacheReport) {
         }
     }
 }
+
 // ─── Chips ────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -326,7 +351,7 @@ fun GravedadChip(gravedad: Gravedad) {
     }
     Surface(
         shape = RoundedCornerShape(50),
-        color = color.copy(alpha = 0.12f)
+        color = color.copy(alpha = 0.13f)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
@@ -341,10 +366,9 @@ fun GravedadChip(gravedad: Gravedad) {
             )
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
+                fontSize = 10.sp,
                 color = color,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 10.sp
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -363,9 +387,8 @@ fun StatusChip(status: ReportStatus) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = color,
             fontSize = 10.sp,
+            color = color,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
         )
@@ -382,14 +405,14 @@ fun LoadingState() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 2.dp,
-                modifier = Modifier.size(32.dp)
+                color = BwMagenta,
+                strokeWidth = 2.5.dp,
+                modifier = Modifier.size(36.dp)
             )
             Text(
                 text = "Cargando reportes…",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = 13.sp,
+                color = BwMorado.copy(alpha = 0.6f)
             )
         }
     }
@@ -407,31 +430,35 @@ fun EmptyState() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(72.dp)
+            Box(
+                modifier = Modifier
+                    .size(76.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            listOf(BwMagenta.copy(alpha = 0.15f), BwMorado.copy(alpha = 0.08f))
+                        ),
+                        shape = RoundedCornerShape(22.dp)
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Outlined.Warning,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Outlined.Warning,
+                    contentDescription = null,
+                    tint = BwMagenta,
+                    modifier = Modifier.size(34.dp)
+                )
             }
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "Sin reportes aún",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = BwMorado
             )
             Text(
                 text = "Usa el botón inferior para reportar\nel primer bache de tu zona.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 13.sp,
+                color = Color(0xFF888888),
                 textAlign = TextAlign.Center,
                 lineHeight = 20.sp
             )
@@ -451,40 +478,43 @@ fun ErrorState(mensaje: String, onReintentar: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.errorContainer,
-                modifier = Modifier.size(72.dp)
+            Box(
+                modifier = Modifier
+                    .size(76.dp)
+                    .background(
+                        color = BwMagenta.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(22.dp)
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Outlined.Warning,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Outlined.Warning,
+                    contentDescription = null,
+                    tint = BwMagenta,
+                    modifier = Modifier.size(34.dp)
+                )
             }
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "Algo salió mal",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = BwMorado
             )
             Text(
                 text = mensaje,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 13.sp,
+                color = Color(0xFF888888),
                 textAlign = TextAlign.Center,
                 lineHeight = 20.sp
             )
             Spacer(Modifier.height(4.dp))
-            FilledTonalButton(
+            Button(
                 onClick = onReintentar,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BwMagenta)
             ) {
-                Text("Reintentar", fontWeight = FontWeight.SemiBold)
+                Text("Reintentar", fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
     }

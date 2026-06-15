@@ -28,6 +28,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -50,11 +51,17 @@ class ReporteActivity : ComponentActivity() {
     }
 }
 
-// ─── Colores locales ──────────────────────────────────────────────────────────
+// ─── Paleta BacheWatch ────────────────────────────────────────────────────────
+private val BwMorado    = Color(0xFF520943)
+private val BwMagenta   = Color(0xFFAC0E4F)
+private val BwCyan      = Color(0xFF209CD8)
+private val BwCyanClaro = Color(0xFF20DAD8)
+private val BwMenta     = Color(0xFFA1EBE9)
 
-private val ColorLeve     = Color(0xFF22C55E)
-private val ColorModerado = Color(0xFFF59E0B)
-private val ColorGrave    = Color(0xFFEF4444)
+// Chips de gravedad con la nueva paleta
+private val ColorLeve     = Color(0xFF20DAD8)   // cyan claro
+private val ColorModerado = Color(0xFFAC0E4F)   // magenta
+private val ColorGrave    = Color(0xFF520943)   // morado
 
 // ─── Pantalla de reporte ──────────────────────────────────────────────────────
 
@@ -113,38 +120,44 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
+            // TopBar con el mismo fondo morado que MainActivity
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(BwMorado)
+                    .statusBarsPadding()
+                    .padding(horizontal = 4.dp, vertical = 12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Regresar",
+                            tint = BwMenta,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                     Column {
                         Text(
                             text = "Nuevo reporte",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            letterSpacing = (-0.5).sp
+                            letterSpacing = (-0.5).sp,
+                            color = Color.White
                         )
                         Text(
                             text = "BacheWatch",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 11.sp,
+                            color = BwMenta.copy(alpha = 0.75f),
                             letterSpacing = 0.5.sp
                         )
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Regresar",
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
+                }
+            }
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color(0xFFF5F0F4)
     ) { padding ->
         Column(
             modifier = Modifier
@@ -154,7 +167,7 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
 
             // ── Sección: Ubicación ──────────────────────────────────────────
             SectionLabel("Ubicación detectada")
@@ -162,34 +175,38 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
                 tonalElevation = 0.dp
             ) {
                 Row(
                     modifier = Modifier.padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        modifier = Modifier.size(40.dp)
+                    // Ícono con fondo cyan
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .background(
+                                color = BwCyan.copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                Icons.Outlined.LocationOn,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+                        Icon(
+                            Icons.Outlined.LocationOn,
+                            contentDescription = null,
+                            tint = BwCyan,
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
                             text = direccionTexto,
-                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
+                            color = BwMorado,
                             lineHeight = 20.sp,
                             letterSpacing = (-0.2).sp
                         )
@@ -204,11 +221,11 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
             Spacer(Modifier.height(8.dp))
 
             if (vm.fotoUri != null) {
-                // Estado: foto seleccionada
+                // Estado: foto seleccionada — fondo con tono cyan claro
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    color = ColorLeve.copy(alpha = 0.08f)
+                    shape = RoundedCornerShape(16.dp),
+                    color = BwCyanClaro.copy(alpha = 0.10f)
                 ) {
                     Row(
                         modifier = Modifier
@@ -224,13 +241,13 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
                             Icon(
                                 Icons.Outlined.CheckCircle,
                                 contentDescription = null,
-                                tint = ColorLeve,
+                                tint = BwCyanClaro,
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
                                 text = "Foto lista para enviar",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = ColorLeve,
+                                fontSize = 13.sp,
+                                color = Color(0xFF0D6E6E),  // versión oscura del cyan para legibilidad
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -240,24 +257,25 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
                         ) {
                             Text(
                                 "Cambiar",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontSize = 12.sp,
+                                color = BwCyan
                             )
                         }
                     }
                 }
             } else {
-                // Estado: sin foto
+                // Estado: sin foto — botón con borde cyan
                 OutlinedButton(
                     onClick = { photoPickerLauncher.launch("image/*") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(14.dp),
+                        .height(54.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        contentColor = BwCyan
                     ),
                     border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = androidx.compose.ui.graphics.SolidColor(BwCyan.copy(alpha = 0.5f)),
                         width = 1.dp
                     )
                 ) {
@@ -287,20 +305,24 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
                 placeholder = {
                     Text(
                         "Ej. Afecta el carril de alta velocidad, profundidad aproximada de 15 cm…",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        color = Color(0xFFBBBBBB),
                         fontSize = 13.sp
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 4,
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(16.dp),
                 textStyle = LocalTextStyle.current.copy(
                     fontSize = 14.sp,
-                    lineHeight = 21.sp
+                    lineHeight = 21.sp,
+                    color = BwMorado
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary
+                    unfocusedBorderColor = Color(0xFFDDD0DA),
+                    focusedBorderColor = BwCyan,
+                    cursorColor = BwCyan,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
                 )
             )
 
@@ -331,24 +353,27 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
                         onClick = { vm.gravedad = nivel },
                         modifier = Modifier
                             .weight(1f)
-                            .height(44.dp),
-                        shape = RoundedCornerShape(12.dp),
+                            .height(48.dp),
+                        shape = RoundedCornerShape(14.dp),
                         color = if (isSelected) chipColor.copy(alpha = 0.14f)
-                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        else Color.White,
                         border = if (isSelected)
                             ButtonDefaults.outlinedButtonBorder.copy(
-                                brush = androidx.compose.ui.graphics.SolidColor(chipColor.copy(alpha = 0.8f)),
-                                width = 1.dp
+                                brush = androidx.compose.ui.graphics.SolidColor(chipColor),
+                                width = 1.5.dp
                             )
-                        else null
+                        else
+                            ButtonDefaults.outlinedButtonBorder.copy(
+                                brush = androidx.compose.ui.graphics.SolidColor(Color(0xFFE0D0DC)),
+                                width = 0.8.dp
+                            )
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
                                 text = label,
-                                style = MaterialTheme.typography.labelMedium,
+                                fontSize = 13.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) chipColor
-                                else MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (isSelected) chipColor else Color(0xFF888888)
                             )
                         }
                     }
@@ -370,51 +395,76 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.primary
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.5.dp,
+                            color = BwMagenta
                         )
                         Text(
                             text = "Enviando reporte…",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontSize = 13.sp,
+                            color = BwMorado.copy(alpha = 0.7f)
                         )
                     }
                 }
             } else {
-                Button(
-                    onClick = { vm.guardarReporte(latitud, longitud, direccionTexto) },
+                // Botón con gradiente magenta → morado
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    enabled = vm.descripcion.isNotBlank() && latitud != 0.0,
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            brush = if (vm.descripcion.isNotBlank() && latitud != 0.0)
+                                Brush.horizontalGradient(listOf(BwMagenta, BwMorado))
+                            else
+                                Brush.horizontalGradient(listOf(Color(0xFFCCCCCC), Color(0xFFBBBBBB)))
+                        )
                 ) {
-                    Text(
-                        "Enviar reporte",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
-                        letterSpacing = 0.sp
-                    )
+                    Button(
+                        onClick = { vm.guardarReporte(latitud, longitud, direccionTexto) },
+                        modifier = Modifier.fillMaxSize(),
+                        enabled = vm.descripcion.isNotBlank() && latitud != 0.0,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent
+                        ),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text(
+                            "Enviar reporte",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            letterSpacing = 0.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
             vm.mensajeError?.let { error ->
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.errorContainer
+                    shape = RoundedCornerShape(12.dp),
+                    color = BwMagenta.copy(alpha = 0.10f)
                 ) {
-                    Text(
-                        text = error,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        style = MaterialTheme.typography.bodySmall,
+                    Row(
                         modifier = Modifier.padding(12.dp),
-                        lineHeight = 18.sp
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .background(BwMagenta, shape = RoundedCornerShape(2.dp))
+                        )
+                        Text(
+                            text = error,
+                            color = BwMagenta,
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp
+                        )
+                    }
                 }
             }
 
@@ -427,20 +477,27 @@ fun ReporteScreen(vm: ReporteViewModel = viewModel(), onBack: () -> Unit) {
 
 @Composable
 private fun SectionLabel(text: String) {
-    Text(
-        text = text.uppercase(),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 1.sp,
-        fontSize = 10.sp
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .width(3.dp)
+                .height(12.dp)
+                .background(
+                    brush = Brush.verticalGradient(listOf(BwCyan, BwMagenta)),
+                    shape = RoundedCornerShape(2.dp)
+                )
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = text.uppercase(),
+            fontSize = 10.sp,
+            color = BwMorado,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp
+        )
+    }
 }
 
-/**
- * Consulta las coordenadas GPS del sensor del dispositivo y realiza ingeniería
- * inversa de coordenadas (Geocoding) para obtener una calle legible.
- */
 @SuppressLint("MissingPermission")
 private fun obtenerUbicacionReal(
     context: Context,

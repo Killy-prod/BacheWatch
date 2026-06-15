@@ -7,15 +7,18 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,21 +44,19 @@ class LoginActivity : ComponentActivity() {
         setContent {
             BacheWatchTheme {
                 LoginScreen(
-                    // BUG 6 FIX: se pasa el contexto para manejar errores en la Activity
                     onLoginClick = { onFailure -> loginAnonimo(onFailure) }
                 )
             }
         }
     }
 
-    // BUG 6 FIX: recibe un callback para resetear el estado de carga si falla
     private fun loginAnonimo(onFailure: () -> Unit) {
         auth.signInAnonymously()
             .addOnSuccessListener {
                 irAlHome()
             }
             .addOnFailureListener { exception ->
-                onFailure() // Avisa a la UI para que reactive el botón
+                onFailure()
                 Toast.makeText(
                     this,
                     "Error al conectar: ${exception.localizedMessage}",
@@ -70,6 +71,13 @@ class LoginActivity : ComponentActivity() {
     }
 }
 
+// ─── Paleta ───────────────────────────────────────────────────────────────────
+private val BwMorado    = Color(0xFF520943)
+private val BwMagenta   = Color(0xFFAC0E4F)
+private val BwCyan      = Color(0xFF209CD8)
+private val BwCyanClaro = Color(0xFF20DAD8)
+private val BwMenta     = Color(0xFFA1EBE9)
+
 @Composable
 fun LoginScreen(onLoginClick: (onFailure: () -> Unit) -> Unit) {
     var cargando by remember { mutableStateOf(false) }
@@ -78,133 +86,225 @@ fun LoginScreen(onLoginClick: (onFailure: () -> Unit) -> Unit) {
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { paddingValues ->
+    // Fondo con gradiente morado → magenta oscuro
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        BwMorado,
+                        Color(0xFF7A0A35),
+                        Color(0xFF3D0630)
+                    )
+                )
+            )
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
+                .systemBarsPadding()
+                .padding(horizontal = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(72.dp)
-            )
 
-            Spacer(Modifier.height(16.dp))
-
-            Text(
-                text = "BacheWatch",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = (-1).sp,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Text(
-                text = "Ingresa tus datos para continuar",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                lineHeight = 20.sp,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-
-            Spacer(Modifier.height(32.dp))
-
-            // Campo de correo
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    emailError = null
-                },
-                label = { Text("Correo electrónico") },
-                placeholder = { Text("ejemplo@correo.com") },
-                isError = emailError != null,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            if (emailError != null) {
-                Text(
-                    text = emailError!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp, top = 4.dp)
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // BUG 1 FIX: campo de contraseña ahora va ANTES de los botones
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    passwordError = null
-                },
-                label = { Text("Contraseña") },
-                isError = passwordError != null,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            if (passwordError != null) {
-                Text(
-                    text = passwordError!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp, top = 4.dp)
+            // ─── Logo / ícono ─────────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(
+                        color = BwMagenta.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(24.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Warning,
+                    contentDescription = null,
+                    tint = BwMenta,
+                    modifier = Modifier.size(40.dp)
                 )
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // BUG 2 y 4 FIX: un solo bloque if/else, un solo indicador de carga
-            if (cargando) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            } else {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "BacheWatch",
+                fontSize = 34.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-1).sp,
+                color = Color.White
+            )
 
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                text = "Ingresa tus datos para continuar",
+                fontSize = 14.sp,
+                color = BwMenta.copy(alpha = 0.75f),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(40.dp))
+
+            // ─── Tarjeta de formulario ────────────────────────────────────
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White.copy(alpha = 0.10f),
+                tonalElevation = 0.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+
+                    // Campo de correo
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = {
+                            email = it
+                            emailError = null
+                        },
+                        label = {
+                            Text(
+                                "Correo electrónico",
+                                color = BwMenta.copy(alpha = 0.8f),
+                                fontSize = 13.sp
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                "ejemplo@correo.com",
+                                color = Color.White.copy(alpha = 0.3f),
+                                fontSize = 13.sp
+                            )
+                        },
+                        isError = emailError != null,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = BwCyanClaro,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.25f),
+                            errorBorderColor = BwMagenta,
+                            cursorColor = BwCyanClaro,
+                            focusedLabelColor = BwCyanClaro,
+                            unfocusedLabelColor = BwMenta.copy(alpha = 0.7f)
+                        )
+                    )
+                    if (emailError != null) {
+                        Text(
+                            text = emailError!!,
+                            color = BwCyanClaro,
+                            fontSize = 11.sp,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+
+                    // Campo de contraseña
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            passwordError = null
+                        },
+                        label = {
+                            Text(
+                                "Contraseña",
+                                color = BwMenta.copy(alpha = 0.8f),
+                                fontSize = 13.sp
+                            )
+                        },
+                        isError = passwordError != null,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = BwCyanClaro,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.25f),
+                            errorBorderColor = BwMagenta,
+                            cursorColor = BwCyanClaro,
+                            focusedLabelColor = BwCyanClaro,
+                            unfocusedLabelColor = BwMenta.copy(alpha = 0.7f)
+                        )
+                    )
+                    if (passwordError != null) {
+                        Text(
+                            text = passwordError!!,
+                            color = BwCyanClaro,
+                            fontSize = 11.sp,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // ─── Botones ──────────────────────────────────────────────────
+            if (cargando) {
+                CircularProgressIndicator(
+                    color = BwCyanClaro,
+                    strokeWidth = 2.5.dp,
+                    modifier = Modifier.size(36.dp)
+                )
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Botón principal: gradiente cyan → magenta
                     Button(
                         onClick = {
                             if (validarFormulario(email, password, { emailError = it }, { passwordError = it })) {
                                 cargando = true
-                                // BUG 6 FIX: si falla, cargando vuelve a false
                                 onLoginClick { cargando = false }
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp),
-                        shape = RoundedCornerShape(14.dp)
+                            .height(54.dp)
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    listOf(BwCyan, BwMagenta)
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            ),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent
+                        ),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Text("Ingresar", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Ingresar",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
 
-                    Spacer(Modifier.height(8.dp))
-
-                    // BUG 3 y 5 FIX: contexto eliminado del Toast; registro diferenciado del login
                     TextButton(
                         onClick = {
                             if (validarFormulario(email, password, { emailError = it }, { passwordError = it })) {
                                 cargando = true
-                                // Aquí iría lógica real de registro (createUserWithEmailAndPassword)
-                                // Por ahora reutiliza el login anónimo como placeholder
                                 onLoginClick { cargando = false }
                             }
                         }
                     ) {
-                        Text("¿No tienes cuenta? Regístrate")
+                        Text(
+                            "¿No tienes cuenta? Regístrate",
+                            color = BwMenta,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
