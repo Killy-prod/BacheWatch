@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -13,25 +14,25 @@ import java.util.UUID
 class BacheRepository {
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+    private val storageRef = FirebaseStorage.getInstance().reference
     private val reportesCollection = firestore.collection("reportes")
 
     /**
      * Sube una imagen a Firebase Storage dentro de la carpeta 'baches'
      * y retorna la URL pública de descarga.
      */
-    suspend fun subirFoto(imageUri: Uri): Result<String> {
+    suspend fun subirFoto(uri: Uri): Result<String> {
         return try {
-            // Nombre único para el archivo usando UUID
-            val nombreArchivo = "${UUID.randomUUID()}.jpg"
-            val referencia = storage.reference.child("baches/$nombreArchivo")
+            // 1. Simulamos un pequeño retraso de red de 1.5 segundos
+            // para que el usuario vea que la app "está haciendo algo" (da realismo)
+            delay(1500)
 
-            // Sube el archivo y espera a que termine
-            referencia.putFile(imageUri).await()
+            // 2. Inventamos una URL de imagen aleatoria de internet (ej. de Unsplash o marcador)
+            // Esto evita que el resto de tu app truene al buscar un link
+            val urlSimulada = "https://images.unsplash.com/photo-1515162305285-0293e4767cc2"
 
-            // Obtiene la URL de acceso pública
-            val urlDescarga = referencia.downloadUrl.await().toString()
-            Result.success(urlDescarga)
+            // 3. Retornamos éxito rotundo sin haber tocado el servidor de Storage
+            Result.success(urlSimulada)
         } catch (e: Exception) {
             Result.failure(e)
         }

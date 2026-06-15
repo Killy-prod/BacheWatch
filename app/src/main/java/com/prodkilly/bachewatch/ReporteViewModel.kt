@@ -31,31 +31,26 @@ class ReporteViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                var urlFinalFoto: String? = null
+                val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+                val userId = auth.currentUser?.uid ?: "anonimo"
 
-                // 1. Si el usuario seleccionó una foto, la subimos primero a Storage
-                fotoUri?.let { uri ->
-                    val uploadResult = repository.subirFoto(uri)
-                    if (uploadResult.isSuccess) {
-                        urlFinalFoto = uploadResult.getOrNull()
-                    } else {
-                        estaCargando = false
-                        mensajeError = "Error al subir la imagen: ${uploadResult.exceptionOrNull()?.message}"
-                        return@launch
-                    }
-                }
+                // ─── SOLO DEBE HABER UNA LÍNEA CON ESTE NOMBRE ───
+                val urlFinalFoto = fotoUri?.toString() ?: "sin_foto"
 
-                // 2. Construimos el reporte con la ubicación real y la URL de la foto
+                // Construcción del reporte
                 val nuevoReporte = BacheReport(
-                    id = UUID.randomUUID().toString(),
+                    id = java.util.UUID.randomUUID().toString(),
                     usuarioId = userId,
                     descripcion = descripcion,
                     gravedad = gravedad,
                     direccion = direccion,
                     latitud = latitud,
                     longitud = longitud,
-                    fotoUrl = urlFinalFoto
+                    fotoUrl = urlFinalFoto, // Pasamos la variable correcta
+                    fechaCreacion = java.util.Date(),
+                    status = ReportStatus.PENDIENTE
                 )
+
 
                 // 3. Guardamos el reporte final en Firestore
                 val resultado = repository.crearReporte(nuevoReporte)

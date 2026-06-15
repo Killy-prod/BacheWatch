@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
     // Integración de ViewModel con Compose (Arregla 'viewModel')
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
     // Soporte para LiveData en Compose (Arregla 'observeAsState')
